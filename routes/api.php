@@ -38,6 +38,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //Ruta para cambiar la imagen de perfil del usuario
     Route::PUT('/update.profile', [UserController::class, 'updateImage'])->name('update.profile');
+
+    //Ruta para comprobar si el usuario es participante
+    Route::get('esParticipante/{ruta_id}', [RouteController::class, 'esParticipante'])->name('esParticipante');
 });
 
 //Rutas de login y registro

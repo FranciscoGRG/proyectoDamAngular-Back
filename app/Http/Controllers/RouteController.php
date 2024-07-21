@@ -180,4 +180,11 @@ class RouteController extends Controller
         $ruta = Route::find($ruta_id);
         return response()->json([$ruta], 200);
     }
+
+    public function esParticipante($ruta_id)
+    {
+        $user = Auth::user();
+        $participante = $user->subscribedRoutes->contains($ruta_id);
+        return response()->json(['esParticipante' => $participante], 200);
+    }
 }
