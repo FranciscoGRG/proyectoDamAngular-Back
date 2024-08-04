@@ -41,7 +41,8 @@ class AuthController extends Controller
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
-                'password' => Hash::make($request->password)
+                'password' => Hash::make($request->password),
+                'profile_image' => 'imagen_predeterminada_r.png',
             ]);
 
             return response()->json([
@@ -101,5 +102,14 @@ class AuthController extends Controller
                 'message' => $th->getMessage()
             ], 500);
         }
+    }
+
+    public function getUser($user_id)
+    {
+        // return response()->json([$user_id], 201);
+
+        $user = User::find($user_id);
+
+        return response()->json([$user], 201);
     }
 }

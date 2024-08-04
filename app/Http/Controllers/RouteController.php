@@ -47,8 +47,6 @@ class RouteController extends Controller
         // Convertir el array de URLs a JSON para almacenarla en la base de datos
         $imagesJson = json_encode($urls);
 
-        // return response()->json($urls);
-
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -86,8 +84,7 @@ class RouteController extends Controller
                 'likes' => 0,
                 'user_id' => $userId,
             ]);
-
-            return response()->json(['message' => 'Ruta creada correctamente', 'route' => $route], 201);
+            return response()->json(['message' => 'Ruta creada correctamente', 'route' => $route->id], 201);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error al crear la ruta', 'error' => $e->getMessage()], 500);
         }
@@ -109,20 +106,15 @@ class RouteController extends Controller
     public function darLike(Request $request)
     {
         $ruta = Route::find($request->ruta_id);
+        $user = Auth::user();
 
         $ruta->likes = $ruta->likes + 1;
 
         $ruta->save();
-    }
 
-    public function updatedLike($ruta_id)
-    {
-        try {
-            $ruta = Route::find($ruta_id);
-            return response()->json($ruta->likes, 200);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Error al obtener los Likes: ' . $e->getMessage()], 500);
-        }
+        $ruta->likedByUsers()->attach($user->id);
+
+        return response()->json(['likes' => $ruta->likes]);
     }
 
     public function confirmar(Request $request)
@@ -186,5 +178,90 @@ class RouteController extends Controller
         $user = Auth::user();
         $participante = $user->subscribedRoutes->contains($ruta_id);
         return response()->json(['esParticipante' => $participante], 200);
+    }
+
+    public function tieneLike($ruta_id)
+    {
+        $user = Auth::user();
+        $like = $user->likedRoutes->contains($ruta_id);
+        return response()->json(['tieneLike' => $like], 200);
+    }
+
+    public function deleteRoute($ruta_id)
+    {
+        $route = Route::find($ruta_id);
+        // return response()->json(Auth::id());
+        if ($route) {
+            $route->delete();
+
+            $routes = Route::where('user_id', Auth::id())->get();
+            return response()->json($routes, 200);
+        } else {
+            return response()->json(['message' => 'Ruta no encontrada'], 404);
+        }
+    }
+
+    public function quitarLike(Request $request)
+    {
+        $ruta = Route::find($request->ruta_id);
+        $user = Auth::user();
+
+        $ruta->likes = $ruta->likes - 1;
+
+        $ruta->save();
+
+        $ruta->likedByUsers()->detach($user->id);
+
+        return response()->json(['likes' => $ruta->likes]);
+    }
+
+    //Arreglar, creo que falla la hora o fecha
+    public function editRoute(Request $request)
+    {
+
+       
+        try {
+            $ruta = Route::find($request->id);
+            ////////////////////////////////
+            $urls = [];
+           
+
+    
+            if ($request->hasFile('imagenes')) {
+                foreach ($request->file('imagenes') as $image) {
+                    $path = $image->store('public/imagenes');
+                    $url = Storage::url($path);
+                    $urls[] = $url; // Añade la URL de la imagen al array
+                }
+            }
+    
+            $imagesJson = json_encode($urls);
+    
+            $hora = Carbon::createFromFormat('H:i', $request->hora)->format('H:i:s');
+    
+    
+            $ruta->title = $request->title;
+            $ruta->description = $request->description;
+            $ruta->distance = $request->distance;
+            $ruta->unevenness = $request->unevenness;
+            $ruta->difficulty = $request->difficulty;
+            $ruta->mapsIFrame = $request->mapsIFrame;
+            $ruta->location = $request->location;
+            $ruta->imagen = $imagesJson;
+            $ruta->fecha = $request->fecha;
+            $ruta->hora = $hora;
+            $ruta->category = $request->category;
+            $ruta->save();
+            return response()->json([$ruta], 201);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al editar la ruta', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function likedRoutes(){
+
+        $user = Auth::user();
+        $rutas = $user->likedRoutes;
+        return response()->json($rutas, 200);
     }
 }

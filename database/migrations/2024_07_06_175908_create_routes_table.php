@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('difficulty');
             $table->string('mapsIFrame', 300);
             $table->string('location');
-            $table->string('imagen');
+            $table->string('imagen', 300);
             $table->date('fecha')->nullable();
             $table->time('hora')->nullable();
             $table->string('category');

@@ -24,8 +24,8 @@ Route::middleware('auth:sanctum')->group(function () {
     //Ruta para dar like a una ruta
     Route::post('darLike', [RouteController::class, 'darLike'])->name('darLike');
 
-    //Ruta para obtener el numero de likes actualizado de la ruta que se acaba de dar like
-    Route::get('updatedLike/{ruta_id}', [RouteController::class, 'updatedLike'])->name('updatedLike');
+    //Ruta para quitar like a una ruta
+    Route::post('quitarLike', [RouteController::class, 'quitarLike'])->name('quitarLike');
 
     //Ruta para obtener el usuario logeado
     Route::get('getUser', [HomeController::class, 'getUser'])->name('getUser');
@@ -41,6 +41,18 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //Ruta para comprobar si el usuario es participante
     Route::get('esParticipante/{ruta_id}', [RouteController::class, 'esParticipante'])->name('esParticipante');
+
+    //Ruta para comprobar si la ruta tiene like
+    Route::get('tieneLike/{ruta_id}', [RouteController::class, 'tieneLike'])->name('tieneLike');
+
+    //Ruta para comprobar borrar una ruta
+    Route::delete('deleteRoute/{ruta_id}', [RouteController::class, 'deleteRoute'])->name('deleteRoute');
+
+    //Ruta para comprobar borrar una ruta
+    Route::PUT('editRoute', [RouteController::class, 'editRoute'])->name('editRoute');
+
+    //Ruta para obtener todas las rutas que le ha dado like el usuario
+    Route::get('likedRoutes', [RouteController::class, 'likedRoutes'])->name('likedRoutes');
 });
 
 //Rutas de login y registro
@@ -55,3 +67,6 @@ Route::get('numberParticipant/{ruta_id}', [RouteController::class, 'numberPartic
 
 //Ruta para obtener los detalles de la ruta seleccionada
 Route::get('getRoute/{ruta_id}', [RouteController::class, 'getRoute'])->name('getRoute');
+
+//Ruta para comprobar borrar una ruta
+Route::get('getUser/{user_id}', [AuthController::class, 'getUser'])->name('getUser');
